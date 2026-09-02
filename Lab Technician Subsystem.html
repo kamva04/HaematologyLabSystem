@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haematology Lab - Technician Workstation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+body { display: flex; background: #f3f4f6; }
+.sidebar { width: 270px; height: 100vh; background: #0f172a; color: white; position: fixed; left: 0; top: 0; padding: 20px; overflow-y: auto; z-index: 10; }
+.logo { text-align: center; margin-bottom: 40px; }
+.logo h2 { color: #60a5fa; }
+.menu { list-style: none; }
+.menu li { margin-bottom: 15px; }
+.menu li a { text-decoration: none; color: white; display: flex; align-items: center; gap: 15px; padding: 14px; border-radius: 10px; transition: 0.3s; cursor: pointer; }
+.menu li a:hover { background: #1e293b; }
+.menu li a.active { background: #2563eb; }
+.main { margin-left: 270px; width: calc(100% - 270px); padding: 30px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+.topbar h1 { color: #111827; }
+.profile-card { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 20px 8px 12px; border-radius: 60px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); cursor: pointer; }
+.avatar { width: 42px; height: 42px; border-radius: 50%; background: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-bottom: 30px; }
+.card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: 0.2s; }
+.card i { font-size: 32px; color: #2563eb; margin-bottom: 12px; }
+.card h3 { font-size: 28px; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px,1fr)); gap: 25px; margin-bottom: 30px; }
+.dashboard-widget { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+.widget-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid #2563eb; padding-left: 12px; }
+.recent-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
+.welcome-banner { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; padding: 25px; border-radius: 20px; margin-bottom: 30px; }
+.page-section { display: none; animation: fadeIn 0.3s ease; }
+.page-section.active-section { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+.section { background: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); overflow-x: auto; }
+.section h2 { margin-bottom: 20px; border-left: 4px solid #2563eb; padding-left: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.btn { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-danger { background: #ef4444; }
+.btn-success { background: #10b981; }
+.btn-warning { background: #f59e0b; }
+.btn-outline { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+th { background: #2563eb; color: white; padding: 12px; text-align: left; }
+td { padding: 12px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+.status { padding: 4px 10px; border-radius: 20px; color: white; font-size: 12px; display: inline-block; }
+.status-submitted { background: #f59e0b; }
+.status-received { background: #8b5cf6; }
+.status-progress { background: #3b82f6; }
+.status-completed { background: #10b981; }
+.status-verified { background: #059669; }
+.status-review { background: #ef4444; }
+.urgency-badge { padding: 4px 10px; border-radius: 20px; color: white; font-size: 12px; }
+.urgency-routine { background: #10b981; }
+.urgency-urgent { background: #f59e0b; }
+.urgency-stat { background: #ef4444; }
+.filters { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.filters input, .filters select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; flex: 1; min-width: 200px; }
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: white; max-width: 550px; width: 90%; border-radius: 20px; padding: 25px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.close-modal { font-size: 28px; cursor: pointer; color: #64748b; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.info-box { background: #f0f9ff; padding: 12px; border-radius: 10px; margin-bottom: 15px; border-left: 3px solid #2563eb; }
+.receive-panel { background: #f0fdf4; border: 2px solid #86efac; border-radius: 16px; padding: 20px; margin-bottom: 25px; }
+.receive-panel h3 { color: #166534; margin-bottom: 15px; }
+.receive-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
+.receive-row .form-group { flex: 1; margin-bottom: 0; }
+@media(max-width:900px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; } .main { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo"><h2><i class="fa-solid fa-microscope"></i> HemaLab</h2></div>
+    <ul class="menu">
+        <li><a class="nav-link" data-section="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+        <li><a class="nav-link" data-section="receive"><i class="fa-solid fa-qrcode"></i> Receive Samples</a></li>
+        <li><a class="nav-link" data-section="mywork"><i class="fa-solid fa-flask"></i> My Workbench</a></li>
+        <li><a class="nav-link" data-section="verify"><i class="fa-solid fa-check-double"></i> Verify Results</a></li>
+        <li><a class="nav-link" data-section="reports"><i class="fa-solid fa-file-pdf"></i> Reports</a></li>
+        <li><a class="nav-link" data-section="profile"><i class="fa-solid fa-user-circle"></i> My Profile</a></li>
+        <li><a href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+</div>
+<div class="main">
+    <div class="topbar"><h1 id="pageTitle">Technician Dashboard</h1><div class="profile-card" id="profileBtn"><div class="avatar" id="avatarInitial">B</div><span id="profileName">Bongiwe</span><i class="fa-solid fa-chevron-down"></i></div></div>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-section" class="page-section active-section">
+        <div class="welcome-banner"><h2>Welcome, Bongiwe Mabasa 👋</h2><p>Manage test requests, capture results, and verify lab work.</p></div>
+        <div class="cards">
+            <div class="card" data-nav="mywork"><i class="fa-solid fa-flask"></i><h3 id="statInProgress">0</h3><p>My Tests In Progress</p></div>
+            <div class="card" data-nav="receive"><i class="fa-solid fa-box"></i><h3 id="statAwaiting">0</h3><p>Awaiting Sample Reception</p></div>
+            <div class="card" data-nav="verify"><i class="fa-solid fa-check-double"></i><h3 id="statToVerify">0</h3><p>Awaiting Verification</p></div>
+            <div class="card" data-nav="mywork"><i class="fa-solid fa-exclamation-triangle"></i><h3 id="statOverdue">0</h3><p>Overdue Tests</p></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="dashboard-widget"><div class="widget-title"><i class="fa-solid fa-tasks"></i> My Current Tests</div><div id="myTestsSummary"></div><div class="quick-actions"><div class="action-btn" data-nav="mywork">View All →</div></div></div>
+            <div class="dashboard-widget"><div class="widget-title"><i class="fa-solid fa-clock"></i> Pending Sample Reception</div><div id="pendingReceptionSummary"></div><div class="quick-actions"><div class="action-btn" data-nav="receive">Receive Samples →</div></div></div>
+            <div class="dashboard-widget"><div class="widget-title"><i class="fa-solid fa-bell"></i> STAT Alerts</div><div id="statAlertsList"></div><div class="quick-actions"><div class="action-btn" data-nav="receive">Handle Now →</div></div></div>
+        </div>
+    </div>
+
+    <!-- RECEIVE SAMPLES SECTION - PROPER LOGIC -->
+    <div id="receive-section" class="page-section">
+        <div class="section">
+            <h2><i class="fa-solid fa-qrcode"></i> Sample Reception Desk</h2>
+            
+            <!-- Receive Form -->
+            <div class="receive-panel">
+                <h3><i class="fa-solid fa-hand-sparkles"></i> Mark Samples as Received</h3>
+                <div class="receive-row">
+                    <div class="form-group">
+                        <label>Request Number *</label>
+                        <input type="text" id="receiveReqNo" placeholder="e.g., REQ-101" style="width:100%">
+                    </div>
+                    <div class="form-group">
+                        <label>Sample Barcode *</label>
+                        <input type="text" id="receiveBarcode" placeholder="Scan or type barcode" style="width:100%">
+                    </div>
+                    <div class="form-group">
+                        <label>Sample Type</label>
+                        <select id="receiveSampleType">
+                            <option>Whole Blood</option><option>Plasma</option><option>Serum</option><option>Bone Marrow</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" id="confirmReceiveBtn" style="height:42px;"><i class="fa-solid fa-check-circle"></i> Confirm Reception</button>
+                </div>
+                <p class="small text-muted" style="margin-top:12px;"><i class="fa-solid fa-info-circle"></i> This will mark the test request status as "Samples Received" and update the date/time.</p>
+            </div>
+
+            <!-- Samples Pending Reception Table -->
+            <h3><i class="fa-solid fa-clock"></i> Pending Sample Reception</h3>
+            <div class="filters"><input type="text" id="searchAwaitingReceive" placeholder="Search by patient, request number, or barcode..."></div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Request #</th><th>Patient Name</th><th>Test Type</th><th>Barcode</th><th>Priority</th><th>Current Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="awaitingReceiveTable"></tbody>
+                </table>
+            </div>
+
+            <!-- Recently Received History -->
+            <h3 style="margin-top:30px;"><i class="fa-solid fa-history"></i> Recently Received Samples</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Date/Time</th><th>Request #</th><th>Barcode</th><th>Sample Type</th><th>Received By</th></tr></thead>
+                    <tbody id="recentLogBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY WORKBENCH SECTION -->
+    <div id="mywork-section" class="page-section">
+        <div class="section"><h2><i class="fa-solid fa-microscope"></i> My Assigned Tests (In Progress)</h2>
+            <div class="filters"><input type="text" id="searchMyTests" placeholder="Search..."><select id="filterMyStatus"><option value="">All</option><option value="In Progress">In Progress</option><option value="To Review">To Review</option><option value="Completed">Completed</option></select></div>
+            <div class="table-wrapper"><table><thead><tr><th>Request #</th><th>Patient</th><th>Test</th><th>Barcode</th><th>Priority</th><th>Due</th><th>Status</th><th>Action</th></tr></thead><tbody id="myTestsTable"></tbody></table></div>
+        </div>
+        <div class="section"><h2><i class="fa-solid fa-hourglass-half"></i> Tests Ready to Start (Samples Received)</h2>
+            <div class="filters"><input type="text" id="searchReadyTests" placeholder="Search..."></div>
+            <div class="table-wrapper"><table><thead><tr><th>Request #</th><th>Patient</th><th>Test</th><th>Barcode</th><th>Priority</th><th>Clinical Notes</th><th>Action</th></tr></thead><tbody id="readyTestsTable"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- VERIFY RESULTS SECTION -->
+    <div id="verify-section" class="page-section">
+        <div class="section"><h2><i class="fa-solid fa-check-double"></i> Results Awaiting Verification</h2>
+            <div class="filters"><input type="text" id="searchVerify" placeholder="Search..."></div>
+            <div class="table-wrapper"><table><thead><tr><th>Request #</th><th>Patient</th><th>Test</th><th>Performed By</th><th>Result</th><th>Action</th></tr></thead><tbody id="verifyTableBody"></tbody></table></div>
+        </div>
+        <div class="section"><h2><i class="fa-solid fa-history"></i> Verified Results History</h2>
+            <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Request #</th><th>Patient</th><th>Test</th><th>Result</th><th>Verified By</th></tr></thead><tbody id="verifiedHistoryBody"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- REPORTS SECTION -->
+    <div id="reports-section" class="page-section">
+        <div class="section"><h2><i class="fa-solid fa-chart-line"></i> Technician Performance Report</h2>
+            <div class="filters"><input type="date" id="reportStart"><input type="date" id="reportEnd"><button id="genReportBtn" class="btn"><i class="fa-solid fa-file-pdf"></i> Generate Report</button></div>
+            <div id="reportDisplay" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- PROFILE SECTION -->
+    <div id="profile-section" class="page-section">
+        <div class="section"><h2><i class="fa-solid fa-user-circle"></i> My Profile</h2>
+            <form id="profileForm">
+                <div class="form-group"><label>First Name</label><input type="text" id="techFirst" value="Bongiwe"></div>
+                <div class="form-group"><label>Last Name</label><input type="text" id="techLast" value="Mabasa"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="techEmail" value="bongiwe@hemalab.co.za" readonly></div>
+                <div class="form-group"><label>Phone</label><input type="text" id="techPhone" value="+27 82 444 1234"></div>
+                <div class="form-group"><label>Employee Number</label><input type="text" id="techEmpNo" value="TECH-H002" readonly></div>
+                <div class="form-group"><label>Current Password</label><input type="password" id="currentPassword" placeholder="Enter current password"></div>
+                <div class="form-group"><label>New Password (8+ chars, uppercase, number, special)</label><input type="password" id="newPassword"></div>
+                <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPassword"></div>
+                <button type="submit" class="btn"><i class="fa-solid fa-save"></i> Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div id="captureModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>📝 Capture Test Result</h3><span class="close-modal" onclick="closeCaptureModal()">&times;</span></div><div class="modal-body"><div id="capturePatientInfo" class="info-box"></div><input type="hidden" id="captureTestId"><div class="form-group"><label>Result Value</label><textarea id="resultValue" rows="3" placeholder="e.g., Hb 7.2 g/dL, WBC 15.2 x10^9/L"></textarea></div><div class="form-group"><label>Technician Notes</label><textarea id="resultNotes" rows="2" placeholder="Observations..."></textarea></div><div class="form-group"><label><input type="checkbox" id="flagAbnormal"> ⚠️ Flag as Abnormal / Critical</label></div></div><div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;"><button class="btn btn-success" onclick="saveResult()">Save Result</button><button class="btn btn-outline" onclick="closeCaptureModal()">Cancel</button></div></div></div>
+<div id="reviewModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔄 Review Returned Test</h3><span class="close-modal" onclick="closeReviewModal()">&times;</span></div><div class="modal-body"><div id="reviewInfo" class="info-box"></div><input type="hidden" id="reviewTestId"><div class="form-group"><label>Updated Result</label><textarea id="reviewResult" rows="3"></textarea></div><div class="form-group"><label>Review Notes</label><textarea id="reviewNotes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-success" onclick="submitReview()">Resubmit for Verification</button><button class="btn btn-outline" onclick="closeReviewModal()">Cancel</button></div></div></div>
+<div id="verifyModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔬 Verify Test Result</h3><span class="close-modal" onclick="closeVerifyModal()">&times;</span></div><div class="modal-body"><div id="verifyTestInfo" class="info-box"></div><input type="hidden" id="verifyTestId"><div class="form-group"><label>Decision</label><select id="verifyDecision"><option value="approve">✅ Approve - Verified Correct</option><option value="return">🔄 Return for Review - Needs Correction</option></select></div><div class="form-group"><label>Verifier Comments</label><textarea id="verifyComment" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="submitVerification()">Submit Verification</button><button class="btn btn-outline" onclick="closeVerifyModal()">Cancel</button></div></div></div>
+
+<script>
+// ========== TEST DATA ==========
+let testsData = [
+    { id: 1, reqNo: "REQ-101", patient: "Thabo Mbeki", test: "Full Blood Count", barcode: "FBC-001", priority: "STAT", status: "Submitted", assignedTo: null, result: null, notes: "", isAbnormal: false, startTime: null, elapsed: 0, turnaround: 45, clinical: "Severe fatigue, possible anemia", sampleType: "Whole Blood", category: "Haematology", received: false, receivedDate: null, receivedBy: null },
+    { id: 2, reqNo: "REQ-102", patient: "Maria Santos", test: "Coagulation Profile", barcode: "COAG-002", priority: "Urgent", status: "Submitted", assignedTo: null, result: null, notes: "", isAbnormal: false, elapsed: 0, turnaround: 60, clinical: "On Warfarin, check INR", category: "Coagulation", received: false, receivedDate: null, receivedBy: null },
+    { id: 3, reqNo: "REQ-103", patient: "James Wilson", test: "Differential Count", barcode: "DIFF-003", priority: "Routine", status: "Samples Received", assignedTo: null, result: null, startTime: null, elapsed: 0, turnaround: 50, clinical: "Leukocytosis noted", category: "Haematology", received: true, receivedDate: "2026-05-18 09:00", receivedBy: "Bongiwe Mabasa" },
+    { id: 4, reqNo: "REQ-104", patient: "Linda Ndlovu", test: "Peripheral Blood Film", barcode: "PBF-004", priority: "STAT", status: "Submitted", assignedTo: null, result: null, elapsed: 0, turnaround: 40, clinical: "Blast cells suspected", category: "Morphology", received: false, receivedDate: null, receivedBy: null },
+    { id: 5, reqNo: "REQ-105", patient: "David Chen", test: "Platelet Count", barcode: "PLT-005", priority: "Routine", status: "Completed", assignedTo: "Bongiwe Mabasa", result: "145 x10^9/L (Normal)", isAbnormal: false, completedTime: "2026-05-17", verified: false, category: "Haematology", received: true, receivedDate: "2026-05-17 08:00", receivedBy: "Bongiwe Mabasa" },
+    { id: 6, reqNo: "REQ-106", patient: "Nomsa Dlamini", test: "INR Test", barcode: "INR-006", priority: "Urgent", status: "Completed", assignedTo: "Sipho Nkosi", result: "3.8 (High)", isAbnormal: true, completedTime: "2026-05-18", verified: false, category: "Coagulation", received: true },
+    { id: 7, reqNo: "REQ-107", patient: "Peter Chauke", test: "Hemoglobin", barcode: "HGB-007", priority: "STAT", status: "To Review", assignedTo: "Bongiwe Mabasa", result: "6.8 g/dL", isAbnormal: true, verified: false, category: "Haematology", received: true },
+    { id: 8, reqNo: "REQ-108", patient: "Susan van der Merwe", test: "Reticulocyte Count", barcode: "RET-008", priority: "Routine", status: "Verified", assignedTo: "Bongiwe Mabasa", result: "2.5% (Normal)", isAbnormal: false, verified: true, verifiedBy: "Admin User", category: "Haematology", received: true },
+    { id: 9, reqNo: "REQ-109", patient: "Michael Brown", test: "Bone Marrow Aspirate", barcode: "BMA-009", priority: "STAT", status: "Submitted", assignedTo: null, result: null, elapsed: 0, turnaround: 120, clinical: "Possible leukemia", category: "Cytology", received: false, receivedDate: null, receivedBy: null },
+    { id: 10, reqNo: "REQ-110", patient: "Fatima Patel", test: "ESR", barcode: "ESR-010", priority: "Routine", status: "Submitted", assignedTo: null, result: null, elapsed: 0, turnaround: 30, clinical: "Inflammation markers", category: "Haematology", received: false, receivedDate: null, receivedBy: null },
+    { id: 11, reqNo: "REQ-111", patient: "William Jacobs", test: "White Cell Count", barcode: "WBC-011", priority: "Urgent", status: "Submitted", assignedTo: null, result: null, category: "Haematology", received: false },
+    { id: 12, reqNo: "REQ-112", patient: "Grace Moyo", test: "Red Cell Count", barcode: "RBC-012", priority: "Routine", status: "Submitted", assignedTo: null, result: null, category: "Haematology", received: false },
+    { id: 13, reqNo: "REQ-113", patient: "Thomas Edison", test: "Clotting Time", barcode: "CLOT-013", priority: "STAT", status: "Submitted", assignedTo: null, result: null, category: "Coagulation", received: false },
+    { id: 14, reqNo: "REQ-114", patient: "Sarah Johnson", test: "Ferritin", barcode: "FERR-014", priority: "Urgent", status: "Samples Received", assignedTo: null, result: null, category: "Haematology", received: true },
+    { id: 15, reqNo: "REQ-115", patient: "Oscar Peterson", test: "Vitamin B12", barcode: "B12-015", priority: "Routine", status: "Submitted", assignedTo: null, result: null, category: "Biochemistry", received: false }
+];
+
+let receivedLog = [
+    { datetime: "2026-05-18 08:30", reqNo: "REQ-101", barcode: "FBC-001", sampleType: "Whole Blood", receivedBy: "Bongiwe Mabasa" },
+    { datetime: "2026-05-18 09:15", reqNo: "REQ-102", barcode: "COAG-002", sampleType: "Plasma", receivedBy: "Bongiwe Mabasa" }
+];
+
+let currentTech = { firstName: "Bongiwe", lastName: "Mabasa", email: "bongiwe@hemalab.co.za", phone: "+27 82 444 1234", empNo: "TECH-H002", passwordHash: btoa("Tech@1234") };
+
+// Set today's date for report
+let today = new Date().toISOString().slice(0,10);
+document.getElementById("reportStart").value = "2026-05-01";
+document.getElementById("reportEnd").value = today;
+
+function saveData() { localStorage.setItem("technicianTests", JSON.stringify(testsData)); localStorage.setItem("receiveLogs", JSON.stringify(receivedLog)); }
+function loadData() { let t = localStorage.getItem("technicianTests"); if(t) testsData = JSON.parse(t); let r = localStorage.getItem("receiveLogs"); if(r) receivedLog = JSON.parse(r); }
+
+function refreshAll() { updateStats(); renderMyTestsTable(); renderReadyTests(); renderVerifyTable(); renderVerifiedHistory(); renderAwaitingReceiveTable(); renderRecentLog(); renderDashboardSummaries(); }
+
+function updateStats() {
+    let myInProg = testsData.filter(t => t.status === "In Progress" && t.assignedTo === "Bongiwe Mabasa").length;
+    let awaiting = testsData.filter(t => t.status === "Submitted" && !t.received).length;
+    let toVerify = testsData.filter(t => t.status === "Completed" && !t.verified && t.assignedTo !== "Bongiwe Mabasa").length;
+    let overdue = testsData.filter(t => t.status === "In Progress" && t.assignedTo === "Bongiwe Mabasa" && t.elapsed > t.turnaround).length;
+    document.getElementById("statInProgress").innerText = myInProg;
+    document.getElementById("statAwaiting").innerText = awaiting;
+    document.getElementById("statToVerify").innerText = toVerify;
+    document.getElementById("statOverdue").innerText = overdue;
+}
+
+// ========== SAMPLE RECEPTION - PROPER LOGIC ==========
+function confirmSampleReception() {
+    let reqNo = document.getElementById("receiveReqNo").value.trim();
+    let barcode = document.getElementById("receiveBarcode").value.trim();
+    let sampleType = document.getElementById("receiveSampleType").value;
+    
+    if(!reqNo) { alert("Please enter the Request Number"); return; }
+    if(!barcode) { alert("Please scan or enter the Sample Barcode"); return; }
+    
+    let test = testsData.find(t => t.reqNo === reqNo);
+    if(!test) { alert(`No test request found with number: ${reqNo}`); return; }
+    
+    if(test.barcode !== barcode) { alert(`Barcode mismatch! Expected: ${test.barcode}`); return; }
+    
+    if(test.received) { alert(`Samples for ${reqNo} have already been received on ${test.receivedDate}`); return; }
+    
+    // Update the test record
+    test.received = true;
+    test.status = "Samples Received";
+    test.receivedDate = new Date().toLocaleString();
+    test.receivedBy = `${currentTech.firstName} ${currentTech.lastName}`;
+    test.sampleType = sampleType;
+    
+    // Add to received log
+    receivedLog.unshift({ 
+        datetime: new Date().toLocaleString(), 
+        reqNo: test.reqNo, 
+        barcode: test.barcode, 
+        sampleType: sampleType, 
+        receivedBy: test.receivedBy 
+    });
+    
+    saveData();
+    refreshAll();
+    
+    // Clear form
+    document.getElementById("receiveReqNo").value = "";
+    document.getElementById("receiveBarcode").value = "";
+    
+    alert(`✅ Sample Reception Confirmed!\n\nRequest: ${reqNo}\nPatient: ${test.patient}\nTest: ${test.test}\nBarcode: ${barcode}\nStatus updated to "Samples Received"`);
+}
+
+// ========== RENDER AWAITING RECEPTION TABLE ==========
+function renderAwaitingReceiveTable() {
+    let awaiting = testsData.filter(t => t.status === "Submitted" && !t.received);
+    let search = document.getElementById("searchAwaitingReceive")?.value.toLowerCase() || "";
+    let filtered = awaiting.filter(t => t.patient.toLowerCase().includes(search) || t.reqNo.toLowerCase().includes(search) || t.barcode.toLowerCase().includes(search));
+    
+    document.getElementById("awaitingReceiveTable").innerHTML = filtered.map(t => `
+        <tr>
+            <td><strong>${t.reqNo}</strong></td>
+            <td>${t.patient}</td>
+            <td>${t.test}</td>
+            <td><code>${t.barcode}</code></td>
+            <td><span class="urgency-badge urgency-${t.priority.toLowerCase()}">${t.priority}</span></td>
+            <td><span class="status status-submitted">Submitted</span></td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="quickReceive('${t.reqNo}', '${t.barcode}')">
+                    <i class="fa-solid fa-qrcode"></i> Mark Received
+                </button>
+            </td>
+        </tr>
+    `).join("");
+    
+    if(filtered.length === 0) {
+        document.getElementById("awaitingReceiveTable").innerHTML = "<tr><td colspan='7' style='text-align:center'>✅ No pending samples. All requests have been received.</td></tr>";
+    }
+}
+
+function quickReceive(reqNo, barcode) {
+    document.getElementById("receiveReqNo").value = reqNo;
+    document.getElementById("receiveBarcode").value = barcode;
+    confirmSampleReception();
+}
+
+// ========== OTHER RENDER FUNCTIONS ==========
+function renderReadyTests() {
+    let ready = testsData.filter(t => t.status === "Samples Received" && !t.assignedTo && t.received === true);
+    let search = document.getElementById("searchReadyTests")?.value.toLowerCase() || "";
+    let filtered = ready.filter(t => t.patient.toLowerCase().includes(search) || t.test.toLowerCase().includes(search));
+    
+    document.getElementById("readyTestsTable").innerHTML = filtered.map(t => `
+        <tr>
+            <td>${t.reqNo}</td>
+            <td>${t.patient}</td>
+            <td>${t.test}</span></td>
+            <td><code>${t.barcode}</code></td>
+            <td><span class="urgency-badge urgency-${t.priority.toLowerCase()}">${t.priority}</span></td>
+            <td><small>${t.clinical?.substring(0,50) || "—"}</small></td>
+            <td><button class="btn btn-sm btn-primary" onclick="startTest(${t.id})"><i class="fa-solid fa-play"></i> Start Test</button></td>
+        </tr>
+    `).join("");
+    
+    if(filtered.length === 0) {
+        document.getElementById("readyTestsTable").innerHTML = "<tr><td colspan='7' style='text-align:center'>No tests ready. Samples need to be received first.</td></tr>";
+    }
+}
+
+function startTest(id) {
+    let t = testsData.find(t => t.id === id);
+    if(t && t.status === "Samples Received") {
+        t.status = "In Progress";
+        t.assignedTo = "Bongiwe Mabasa";
+        t.startTime = new Date().toLocaleString();
+        t.elapsed = 0;
+        refreshAll();
+        alert(`✅ Test "${t.test}" started. Status: In Progress`);
+    }
+}
+
+function renderMyTestsTable() {
+    let myTests = testsData.filter(t => t.assignedTo === "Bongiwe Mabasa" && (t.status === "In Progress" || t.status === "To Review" || t.status === "Completed"));
+    let search = document.getElementById("searchMyTests")?.value.toLowerCase() || "";
+    let statusFilter = document.getElementById("filterMyStatus")?.value || "";
+    let filtered = myTests.filter(t => (t.patient.toLowerCase().includes(search) || t.test.toLowerCase().includes(search)) && (statusFilter === "" || t.status === statusFilter));
+    
+    document.getElementById("myTestsTable").innerHTML = filtered.map(t => `
+        <tr>
+            <td>${t.reqNo}</td>
+            <td>${t.patient}</span></td>
+            <td>${t.test}</td>
+            <td><code>${t.barcode}</code></td>
+            <td><span class="urgency-badge urgency-${t.priority.toLowerCase()}">${t.priority}</span></td>
+            <td>${t.elapsed > t.turnaround ? '<span class="status status-review">Overdue</span>' : (t.turnaround - t.elapsed)+' min'}</td>
+            <td><span class="status ${t.status === 'In Progress' ? 'status-progress' : t.status === 'To Review' ? 'status-review' : 'status-completed'}">${t.status}</span></td>
+            <td>
+                ${t.status === "In Progress" ? `<button class="btn btn-sm btn-success" onclick="openCapture(${t.id})"><i class="fa-solid fa-pen"></i> Capture Result</button>` : 
+                  t.status === "To Review" ? `<button class="btn btn-sm btn-warning" onclick="openReview(${t.id})"><i class="fa-solid fa-edit"></i> Review & Resubmit</button>` : 
+                  `<span class="status status-completed">✓ Completed</span>`}
+            </td>
+        </tr>
+    `).join("");
+}
+
+function openCapture(id) {
+    let t = testsData.find(t => t.id === id);
+    if(t) {
+        document.getElementById("captureTestId").value = id;
+        document.getElementById("resultValue").value = t.result || "";
+        document.getElementById("resultNotes").value = t.notes || "";
+        document.getElementById("flagAbnormal").checked = t.isAbnormal || false;
+        document.getElementById("capturePatientInfo").innerHTML = `<strong>${t.patient}</strong> - ${t.test}<br>Clinical Notes: ${t.clinical || "None"}<br>Barcode: ${t.barcode}`;
+        document.getElementById("captureModal").style.display = "flex";
+    }
+}
+
+function saveResult() {
+    let id = parseInt(document.getElementById("captureTestId").value);
+    let t = testsData.find(t => t.id === id);
+    if(t) {
+        t.result = document.getElementById("resultValue").value;
+        t.notes = document.getElementById("resultNotes").value;
+        t.isAbnormal = document.getElementById("flagAbnormal").checked;
+        t.status = "Completed";
+        t.completedTime = new Date().toLocaleString();
+        t.verified = false;
+        closeCaptureModal();
+        refreshAll();
+        alert(`✅ Result saved for ${t.test}. Status: Completed - Ready for verification.`);
+    }
+}
+
+function openReview(id) {
+    let t = testsData.find(t => t.id === id);
+    if(t) {
+        document.getElementById("reviewTestId").value = id;
+        document.getElementById("reviewResult").value = t.result || "";
+        document.getElementById("reviewNotes").value = t.reviewNotes || "";
+        document.getElementById("reviewInfo").innerHTML = `<strong>${t.patient}</strong> - ${t.test}<br>Current Result: ${t.result}<br>Verifier Feedback: ${t.verifierNotes || "None"}`;
+        document.getElementById("reviewModal").style.display = "flex";
+    }
+}
+
+function submitReview() {
+    let id = parseInt(document.getElementById("reviewTestId").value);
+    let t = testsData.find(t => t.id === id);
+    if(t) {
+        t.result = document.getElementById("reviewResult").value;
+        t.notes = document.getElementById("reviewNotes").value;
+        t.status = "Completed";
+        t.verified = false;
+        closeReviewModal();
+        refreshAll();
+        alert(`🔄 Test resubmitted for verification.`);
+    }
+}
+
+function renderVerifyTable() {
+    let pending = testsData.filter(t => t.status === "Completed" && !t.verified && t.assignedTo !== "Bongiwe Mabasa");
+    let search = document.getElementById("searchVerify")?.value.toLowerCase() || "";
+    let filtered = pending.filter(t => t.patient.toLowerCase().includes(search) || t.test.toLowerCase().includes(search));
+    
+    document.getElementById("verifyTableBody").innerHTML = filtered.map(t => `
+        <tr>
+            <td>${t.reqNo}</td>
+            <td>${t.patient}</span></td>
+            <td>${t.test}</span></td>
+            <td>${t.assignedTo || "Unknown"}</td>
+            <td><strong>${t.result?.substring(0,60) || "—"}</strong> ${t.isAbnormal ? '<span class="status status-review">⚠️ Abnormal</span>' : ''}</span></td>
+            <td><button class="btn btn-sm btn-primary" onclick="openVerify(${t.id})"><i class="fa-solid fa-check-double"></i> Verify Result</button></td>
+        </tr>
+    `).join("");
+}
+
+function openVerify(id) {
+    let t = testsData.find(t => t.id === id);
+    if(t) {
+        document.getElementById("verifyTestId").value = id;
+        document.getElementById("verifyTestInfo").innerHTML = `<strong>${t.patient}</strong> - ${t.test}<br>Result: ${t.result}<br>Technician Notes: ${t.notes || "None"}<br>Abnormal Flag: ${t.isAbnormal ? "⚠️ YES - Critical" : "No"}`;
+        document.getElementById("verifyDecision").value = "approve";
+        document.getElementById("verifyComment").value = "";
+        document.getElementById("verifyModal").style.display = "flex";
+    }
+}
+
+function submitVerification() {
+    let id = parseInt(document.getElementById("verifyTestId").value);
+    let t = testsData.find(t => t.id === id);
+    let decision = document.getElementById("verifyDecision").value;
+    let comment = document.getElementById("verifyComment").value;
+    
+    if(decision === "approve") {
+        t.verified = true;
+        t.status = "Verified";
+        t.verifiedBy = "Bongiwe Mabasa";
+        t.verifiedDate = new Date().toLocaleString();
+        alert(`✅ Test verified and released. Patient notified.`);
+    } else {
+        t.status = "To Review";
+        t.verifierNotes = comment;
+        t.verified = false;
+        alert(`🔄 Test returned to technician for review with comments.`);
+    }
+    closeVerifyModal();
+    refreshAll();
+}
+
+function renderVerifiedHistory() {
+    let verified = testsData.filter(t => t.status === "Verified" && t.assignedTo === "Bongiwe Mabasa");
+    document.getElementById("verifiedHistoryBody").innerHTML = verified.map(t => `
+        <tr>
+            <td>${t.verifiedDate || t.completedTime || "—"}</span></td>
+            <td>${t.reqNo}</span></td>
+            <td>${t.patient}</span></span></td>
+            <td>${t.test}</span></span></span></span></td>
+            <td>${t.result}</span></td>
+            <td>${t.verifiedBy || "—"}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+        </tr>
+    `).join("");
+}
+
+function renderRecentLog() {
+    document.getElementById("recentLogBody").innerHTML = receivedLog.slice(0,10).map(l => `
+        <tr>
+            <td>${l.datetime}</span></td>
+            <td>${l.reqNo}</span></td>
+            <td><code>${l.barcode}</code></span></td>
+            <td>${l.sampleType}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+            <td>${l.receivedBy}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+        </tr>
+    `).join("");
+}
+
+function renderDashboardSummaries() {
+    let myTests = testsData.filter(t => t.assignedTo === "Bongiwe Mabasa" && t.status === "In Progress").slice(0,3);
+    document.getElementById("myTestsSummary").innerHTML = myTests.map(t => `<div class="recent-item"><span>${t.patient} - ${t.test}</span><span class="status status-progress">${t.status}</span></div>`).join("") || "<div>No active tests</div>";
+    
+    let pendingReceive = testsData.filter(t => t.status === "Submitted" && !t.received).slice(0,3);
+    document.getElementById("pendingReceptionSummary").innerHTML = pendingReceive.map(t => `<div class="recent-item"><span>${t.reqNo} - ${t.patient}</span><span class="status status-submitted">Pending</span></div>`).join("") || "<div>No pending samples</div>";
+    
+    let statTests = testsData.filter(t => t.priority === "STAT" && !t.received).slice(0,3);
+    document.getElementById("statAlertsList").innerHTML = statTests.map(t => `<div class="recent-item"><span>🚨 ${t.reqNo}: ${t.patient} - ${t.test}</span><button class="btn btn-sm btn-danger" onclick="quickReceive('${t.reqNo}', '${t.barcode}')">Receive Now</button></div>`).join("") || "<div>No STAT alerts</div>";
+}
+
+function generateReport() {
+    let start = document.getElementById("reportStart").value;
+    let end = document.getElementById("reportEnd").value;
+    let completed = testsData.filter(t => t.status === "Verified" && t.assignedTo === "Bongiwe Mabasa" && t.completedTime && t.completedTime >= start && t.completedTime <= end);
+    let categories = {};
+    completed.forEach(t => { categories[t.category] = (categories[t.category] || 0) + 1; });
+    
+    let html = `<div style="background:#f1f5f9; padding:20px; border-radius:20px;">
+        <h3>Technician Report: ${start} to ${end}</h3>
+        <p>✅ Total Verified Tests: ${completed.length}</p>
+        <div class="cards" style="margin-top:15px;">${Object.entries(categories).map(([cat, cnt]) => `<div class="card" style="cursor:default;"><h3>${cnt}</h3><p>${cat}</p></div>`).join('')}</div>
+        <table style="width:100%; margin-top:15px; border-collapse:collapse;"><thead><tr style="background:#2563eb; color:white;"><th style="padding:8px;">Request</th><th style="padding:8px;">Patient</th><th style="padding:8px;">Test</th><th style="padding:8px;">Result</th><th style="padding:8px;">Date</th></tr></thead>
+        <tbody>${completed.map(t => `<td><td style="padding:8px; border-bottom:1px solid #ccc;">${t.reqNo}</td><td style="padding:8px; border-bottom:1px solid #ccc;">${t.patient}</td><td style="padding:8px; border-bottom:1px solid #ccc;">${t.test}</td><td style="padding:8px; border-bottom:1px solid #ccc;">${t.result}</td><td style="padding:8px; border-bottom:1px solid #ccc;">${t.completedTime}</td></tr>`).join('')}</tbody>
+        </table></div>`;
+    document.getElementById("reportDisplay").innerHTML = html;
+    alert("PDF report would be generated here.");
+}
+
+// Navigation and Profile (same as before)
+function showSection(sectionId) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
+    document.getElementById(`${sectionId}-section`).classList.add('active-section');
+    let titles = { dashboard:"Technician Dashboard", receive:"Sample Reception", mywork:"My Workbench", verify:"Verify Results", reports:"Reports", profile:"My Profile" };
+    document.getElementById("pageTitle").innerText = titles[sectionId];
+    if(sectionId === "dashboard") refreshAll();
+    if(sectionId === "mywork") { renderMyTestsTable(); renderReadyTests(); }
+    if(sectionId === "verify") { renderVerifyTable(); renderVerifiedHistory(); }
+    if(sectionId === "receive") { renderAwaitingReceiveTable(); renderRecentLog(); }
+}
+
+// Profile management
+document.getElementById("avatarInitial").innerText = currentTech.firstName.charAt(0);
+document.getElementById("profileName").innerText = currentTech.firstName;
+document.getElementById("profileForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let current = document.getElementById("currentPassword").value;
+    let newPass = document.getElementById("newPassword").value;
+    let confirm = document.getElementById("confirmPassword").value;
+    if (atob(currentTech.passwordHash) !== current && current !== "") { alert("Current password incorrect"); return; }
+    if (newPass) {
+        let regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!regex.test(newPass)) { alert("Password must be 8+ chars, uppercase, number, special"); return; }
+        if (newPass !== confirm) { alert("Passwords do not match"); return; }
+        currentTech.passwordHash = btoa(newPass);
+    }
+    currentTech.firstName = document.getElementById("techFirst").value;
+    currentTech.lastName = document.getElementById("techLast").value;
+    currentTech.phone = document.getElementById("techPhone").value;
+    document.getElementById("avatarInitial").innerText = currentTech.firstName.charAt(0);
+    document.getElementById("profileName").innerText = currentTech.firstName;
+    alert("Profile updated");
+});
+
+// Event Listeners
+document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('data-section')); }));
+document.querySelectorAll('.card[data-nav]').forEach(c => c.addEventListener('click', () => showSection(c.getAttribute('data-nav'))));
+document.getElementById("confirmReceiveBtn").addEventListener('click', confirmSampleReception);
+document.getElementById("genReportBtn").addEventListener('click', generateReport);
+document.getElementById("logoutLink").addEventListener('click', (e) => { e.preventDefault(); window.location.href = "login.html"; });
+document.getElementById("searchMyTests").addEventListener('keyup', () => renderMyTestsTable());
+document.getElementById("filterMyStatus").addEventListener('change', () => renderMyTestsTable());
+document.getElementById("searchReadyTests").addEventListener('keyup', () => renderReadyTests());
+document.getElementById("searchVerify").addEventListener('keyup', () => renderVerifyTable());
+document.getElementById("searchAwaitingReceive").addEventListener('keyup', () => renderAwaitingReceiveTable());
+
+window.closeCaptureModal = () => document.getElementById("captureModal").style.display = "none";
+window.closeReviewModal = () => document.getElementById("reviewModal").style.display = "none";
+window.closeVerifyModal = () => document.getElementById("verifyModal").style.display = "none";
+
+loadData(); refreshAll(); showSection('dashboard');
+</script>
+</body>
+</html>

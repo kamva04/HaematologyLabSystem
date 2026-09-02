@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMB-HLabSys | Haematology Lab System</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',system-ui,-apple-system,sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            background:#f1f5f9;
+        }
+
+        .landing-container{
+            min-height:100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(15,23,42,0.82),
+                    rgba(30,58,138,0.88)
+                ),
+                url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1920&auto=format&fit=crop');
+
+            background-size:cover;
+            background-position:center;
+            background-repeat:no-repeat;
+
+            display:flex;
+            flex-direction:column;
+        }
+
+        .navbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            padding:1.2rem 3rem;
+
+            background:rgba(0,0,0,0.25);
+            backdrop-filter:blur(8px);
+
+            flex-wrap:wrap;
+            gap:1rem;
+        }
+
+        .logo{
+            color:white;
+            font-size:1.5rem;
+            font-weight:700;
+        }
+
+        .logo i{
+            color:#60a5fa;
+            margin-right:8px;
+        }
+
+        .nav-links{
+            display:flex;
+            gap:1rem;
+            align-items:center;
+        }
+
+        .nav-btn{
+            background:transparent;
+            border:1px solid rgba(255,255,255,0.4);
+
+            padding:0.6rem 1.3rem;
+            border-radius:40px;
+
+            color:white;
+            cursor:pointer;
+
+            font-weight:600;
+            transition:0.2s ease;
+        }
+
+        .nav-btn:hover{
+            background:#2563eb;
+            border-color:#2563eb;
+        }
+
+        .hero{
+            flex:1;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            text-align:center;
+            color:white;
+
+            padding:2rem;
+        }
+
+        .hero-content{
+            max-width:850px;
+        }
+
+        .hero-content i{
+            font-size:60px;
+            color:#60a5fa;
+            margin-bottom:1rem;
+        }
+
+        .hero h1{
+            font-size:3.4rem;
+            margin-bottom:1rem;
+            line-height:1.1;
+        }
+
+        .hero p{
+            font-size:1.2rem;
+            opacity:0.92;
+
+            margin-bottom:2rem;
+            line-height:1.7;
+        }
+
+        .cta-buttons{
+            display:flex;
+            justify-content:center;
+            gap:1rem;
+            flex-wrap:wrap;
+        }
+
+        .btn-primary{
+            background:#2563eb;
+            border:none;
+
+            padding:0.9rem 2rem;
+            border-radius:40px;
+
+            color:white;
+            font-weight:600;
+
+            cursor:pointer;
+            transition:0.2s ease;
+        }
+
+        .btn-primary:hover{
+            background:#1d4ed8;
+            transform:translateY(-2px);
+        }
+
+        .btn-outline-light{
+            background:transparent;
+            border:1px solid white;
+
+            padding:0.9rem 2rem;
+            border-radius:40px;
+
+            color:white;
+            font-weight:600;
+
+            cursor:pointer;
+            transition:0.2s ease;
+        }
+
+        .btn-outline-light:hover{
+            background:white;
+            color:#0f172a;
+        }
+
+        .footer{
+            text-align:center;
+            padding:1.5rem;
+
+            color:#cbd5e1;
+            font-size:0.85rem;
+
+            background:rgba(0,0,0,0.2);
+        }
+
+        @media(max-width:768px){
+
+            .navbar{
+                padding:1rem 1.5rem;
+            }
+
+            .hero h1{
+                font-size:2.3rem;
+            }
+
+            .hero p{
+                font-size:1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LANDING PAGE -->
+    <div class="landing-container">
+
+        <!-- NAVBAR -->
+        <div class="navbar">
+
+            <div class="logo">
+                <i class="fa-solid fa-microscope"></i>
+                NMB-HLabSys
+            </div>
+
+            <div class="nav-links">
+
+                <button class="nav-btn"
+                        onclick="window.location.href='login.html'">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Login
+                </button>
+
+                <button class="nav-btn"
+                        onclick="window.location.href='register.html'">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Register
+                </button>
+
+            </div>
+        </div>
+
+        <!-- HERO -->
+        <div class="hero">
+
+            <div class="hero-content">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <h1>
+                    Nelson Mandela Bay
+                    Haematology Laboratory System
+                </h1>
+
+                <p>
+                    Streamlined laboratory operations, secure patient records,
+                    real-time diagnostics tracking, and intelligent healthcare
+                    reporting for modern haematology services.
+                </p>
+
+                <div class="cta-buttons">
+
+                    <button class="btn-primary"
+                            onclick="window.location.href='login.html'">
+
+                        <i class="fa-regular fa-user"></i>
+                        Access Portal
+                    </button>
+
+                    <button class="btn-outline-light"
+                            onclick="window.location.href='register.html'">
+
+                        Patient Registration
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+
+            <i class="fa-solid fa-globe"></i>
+
+            SDG 3: Good Health & Well-Being |
+            Secure Haematology Information System
+
+        </div>
+
+    </div>
+
+</body>
+</html>

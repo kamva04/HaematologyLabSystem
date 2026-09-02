@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #0f172a, #1e3a8a); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 1rem; }
+        .card { background: white; max-width: 550px; width: 100%; border-radius: 32px; padding: 2rem; }
+        h2 { margin-bottom: 1.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 12px; }
+        .btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 0.5rem; }
+        .login-link { text-align: center; margin-top: 1rem; }
+        .hint { font-size: 11px; color: #64748b; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2><i class="fa-solid fa-user-plus"></i> Patient Registration</h2>
+    <div class="form-row">
+        <div class="input-group"><label>First Name*</label><input id="name"></div>
+        <div class="input-group"><label>Surname*</label><input id="surname"></div>
+    </div>
+    <div class="input-group"><label>SA ID Number*</label><input id="idNumber"></div>
+    <div class="form-row">
+        <div class="input-group"><label>Date of Birth*</label><input type="date" id="dob"></div>
+        <div class="input-group"><label>Cellphone*</label><input id="phone"></div>
+    </div>
+    <div class="input-group"><label>Email* (username)</label><input type="email" id="email"></div>
+    <div class="input-group"><label>Home Address*</label><input id="address"></div>
+    <div class="input-group"><label>Password* (8+ chars, uppercase, number, special)</label><input type="password" id="password"></div>
+    <button class="btn" onclick="register()">Register</button>
+    <div class="login-link">Already have an account? <a href="login.html">Login</a></div>
+    <div class="hint">After registration you can login with your email.</div>
+</div>
+<script>
+    function register() {
+        let name = document.getElementById("name").value.trim();
+        let surname = document.getElementById("surname").value.trim();
+        let idNumber = document.getElementById("idNumber").value.trim();
+        let dob = document.getElementById("dob").value;
+        let phone = document.getElementById("phone").value.trim();
+        let email = document.getElementById("email").value.trim();
+        let address = document.getElementById("address").value.trim();
+        let pwd = document.getElementById("password").value;
+        if (!name || !surname || !idNumber || !dob || !phone || !email || !address || !pwd) return alert("All fields required");
+        let pwdRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!pwdRegex.test(pwd)) return alert("Password must meet requirements");
+        let patients = JSON.parse(localStorage.getItem("registeredPatients") || "[]");
+        if (patients.some(p => p.email === email)) return alert("Email already registered");
+        patients.push({ name, surname, idNumber, dob, phone, email, address, passwordHash: btoa(pwd) });
+        localStorage.setItem("registeredPatients", JSON.stringify(patients));
+        alert("Registration successful! You can now login.");
+        location.href = "login.html";
+    }
+</script>
+</body>
+</html>
